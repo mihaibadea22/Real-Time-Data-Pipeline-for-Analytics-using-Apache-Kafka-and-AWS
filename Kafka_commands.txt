@@ -1,0 +1,80 @@
+
+# Launch the EC2 instance using AWS cloud, open the window terminal and connect to the instance by using the created key through SSH. ( take the info from EC2 instace -> connect -> SSH client
+# After launching the EC2 instance we need to install kafka on it, use the following commands to get the kafka version and then extract the downloaded Kafka
+#package so that you can access and use the files.
+
+wget https://downloads.apache.org/kafka/3.8.0/kafka_2.13-3.8.0
+tar -xvf kafka2.13-3.8.0.tgz
+
+#We need to install java on the EC2 instance, following the next command. By default you can check that there is no previous version of Java available on the machine. Then change the current directory to Kafka 
+#directory
+
+java -version
+sudo yum install java-1.8.0-openjdk
+cd kafka_2.12-3.3.1
+
+# Kafka is a distributed event store and stream processing platform
+# To set up and run Kafka we need to start the Zookeeper server and then the Kafka server and finally start producing and consuming messages with Kafka topics.
+
+# Kafka relies on Zookeeper for managin and coordinating Kafka brokers. To start the Zookeeper:
+
+(START ZOOKEEPER)
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+Explanation:
+bin/zookeeper-server-start.sh:
+This script starts the ZooKeeper server.
+config/zookeeper.properties:
+This is the configuration file that contains the settings for the ZooKeeper server.
+
+# Next step is to open another window terminal because ZooKeeper will run in the background in parallel while you start Kafka in a separate process. Use SSH as previously explained to connect to the remote
+# server
+
+
+(START KAFKA SERVER)
+export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
+cd kafka_2.12-3.3.1
+bin/kafka-server-start.sh config/server.properties
+
+User export Kafka Heap Options to improve the overall memory of the the JVM, this step is crucial for managing memory usage, especially if we are working with limited resources like on a small EC2 instance.
+
+Duplicate the SSH Session: Open a new terminal and SSH into your EC2 instance again.
+Set Heap Memory Options: Run export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M" to set the memory limits for Kafka.
+Navigate to Kafka Directory: Use cd kafka_2.12-3.3.1 to navigate to the Kafka installation directory.
+Start Kafka: Run bin/kafka-server-start.sh config/server.properties to start the Kafka broker.
+
+
+To make Kafka accessible via a public IP on your EC2 instance, you need to modify the server.properties file to correctly configure the advertised.listeners setting. 
+This setting tells Kafka how it should advertise itself to clients (producers and consumers) that might be connecting from outside the local network.
+
+
+sudo nano config/server.properties
+
+advertised.listeners=PLAINTEXT://your-ec2-instance-public-ip:9092
+
+Restart Kafka: Stop and restart Kafka to apply the new settings.
+
+
+(CREATE THE TOPIC)
+
+
+Duplicate the session & enter in a new console --
+cd kafka_2.12-3.3.1
+bin/kafka-topics.sh --create --topic demo_test --bootstrap-server {Put the Public IP of your EC2 Instance:9092} --replication-factor 1 --partitions 1
+
+
+(START THE PRODUCER)
+
+bin/kafka-console-producer.sh --topic demo_test --bootstrap-server {Put the Public IP of your EC2 Instance:9092} 
+
+(START THE CONSUMER)
+
+Duplicate the session & enter in a new console --
+
+cd kafka_2.12-3.3.1
+bin/kafka-console-consumer.sh --topic demo_test --bootstrap-server {Put the Public IP of your EC2 Instance:9092}
+
+
+
+
+
