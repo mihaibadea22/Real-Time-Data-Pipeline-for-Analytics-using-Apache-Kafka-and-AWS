@@ -39,6 +39,12 @@ AWS Glue, with its built-in Crawler, is used to automatically discover the data 
 
 Amazon Athena, an interactive query service, is used to perform real-time SQL queries on the data stored in S3. Athena leverages the metadata cataloged by AWS Glue, enabling seamless and efficient querying of the data without the need for any additional infrastructure.
 
+## Steps for execution
+
+1. Create an EC2 instance on AWS
+2. Follow the Kafka_commands.txt steps for execution
+3. Create S3 bucket, the Glue crawler and follow the KafkaProducer and KafkaConsumer jupyter notebooks to automate the streaming process.
+
 
 ## Key Benefits
 
